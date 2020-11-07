@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Request
-from fhir.resources.fhirtypes import ResourceType
-from fhir.resources.fhirtypes import BundleType
-from hyperfhir.core.responses import fhir_rest_response
 from email.utils import format_datetime
-from hyperfhir.core.utils import fhir_resource_from_request
+
+from fastapi import APIRouter, Request
+from fhir.resources.fhirtypes import BundleType, ResourceType
 from pydantic import ValidationError
+
+from hyperfhir.core.responses import fhir_rest_response
+from hyperfhir.core.utils import fhir_resource_from_request
 
 __author__ = "Md Nazrul Islam <email2nazrul@gmail.com>"
 
@@ -76,14 +77,18 @@ async def capabilities():
 
 
 @router.get(
-    "/_history", response_model=BundleType, status_code=200,
+    "/_history",
+    response_model=BundleType,
+    status_code=200,
 )
 async def history_all(request: Request):
     pass
 
 
 @router.post(
-    "/_search", response_model=BundleType, status_code=200,
+    "/_search",
+    response_model=BundleType,
+    status_code=200,
 )
 async def search_all_post(resource_request: ResourceType, request: Request):
     pass
@@ -132,14 +137,18 @@ async def create(resource: str, request: Request):
 
 
 @router.get(
-    "/{resource}", response_model=BundleType, status_code=200,
+    "/{resource}",
+    response_model=BundleType,
+    status_code=200,
 )
 async def search(resource: str, request: Request):
     pass
 
 
 @router.get(
-    "/{resource}/_history", response_model=BundleType, status_code=200,
+    "/{resource}/_history",
+    response_model=BundleType,
+    status_code=200,
 )
 async def history(resource: str, request: Request):
     return None
@@ -147,14 +156,18 @@ async def history(resource: str, request: Request):
 
 
 @router.post(
-    "/{resource}/_search", response_model=BundleType, status_code=200,
+    "/{resource}/_search",
+    response_model=BundleType,
+    status_code=200,
 )
 async def search_post(resource: str, request: Request):
     pass
 
 
 @router.get(
-    "/{resource}/{resource_id}", response_model=ResourceType, status_code=201,
+    "/{resource}/{resource_id}",
+    response_model=ResourceType,
+    status_code=201,
 )
 async def read(resource_request: ResourceType, request: Request):
     """3.1.0.1.7 conditional read
@@ -178,21 +191,27 @@ async def delete(resource_request: ResourceType, request: Request):
 
 
 @router.patch(
-    "/{resource}/{resource_id}", response_model=ResourceType, status_code=201,
+    "/{resource}/{resource_id}",
+    response_model=ResourceType,
+    status_code=201,
 )
 async def patch(resource_request: ResourceType, request: Request):
     pass
 
 
 @router.put(
-    "/{resource}/{resource_id}", response_model=ResourceType, status_code=201,
+    "/{resource}/{resource_id}",
+    response_model=ResourceType,
+    status_code=201,
 )
 async def update(resource_request: ResourceType, request: Request):
     pass
 
 
 @router.get(
-    "/{resource}/{resource_id}/_history", response_model=BundleType, status_code=200,
+    "/{resource}/{resource_id}/_history",
+    response_model=BundleType,
+    status_code=200,
 )
 async def history_single(resource: str, resource_id: str):
     return {}

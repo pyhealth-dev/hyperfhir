@@ -1,13 +1,14 @@
 """Special Response Class for FHIR"""
-from starlette.responses import Response
 import typing
+
+from fastapi.encoders import jsonable_encoder
+from fhirpath.enums import FHIR_VERSION
 from fhirpath.utils import json_dumps
-from starlette.types import Receive, Scope, Send
+from pydantic import BaseModel
 from starlette.background import BackgroundTask
 from starlette.requests import Request
-from fhirpath.enums import FHIR_VERSION
-from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
+from starlette.responses import Response
+from starlette.types import Receive, Scope, Send
 
 
 def fallback_resource_type_callable():

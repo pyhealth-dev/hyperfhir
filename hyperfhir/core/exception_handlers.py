@@ -1,8 +1,8 @@
 from fastapi.encoders import jsonable_encoder
+from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from fastapi.exception_handlers import request_validation_exception_handler
 
 HTTP_400_FHIR_VALIDATION = 400
 FHIR = False

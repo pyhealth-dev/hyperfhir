@@ -1,0 +1,442 @@
+{
+  "resourceType": "ExplanationOfBenefit",
+  "meta": {
+    "lastUpdated": "2020-09-22T22:37:36+02:00",
+    "versionId": "STU3"
+  },
+  "mapping": {
+    "properties": {
+      "identifier": {
+        "properties": {
+          "use": {
+            "type": "keyword",
+            "index": true,
+            "store": false
+          },
+          "system": {
+            "type": "keyword",
+            "index": true,
+            "store": false
+          },
+          "value": {
+            "type": "keyword",
+            "index": true,
+            "store": false
+          },
+          "type": {
+            "properties": {
+              "text": {
+                "type": "text",
+                "index": true,
+                "store": false,
+                "analyzer": "standard"
+              }
+            }
+          }
+        },
+        "type": "nested"
+      },
+      "status": {
+        "type": "keyword",
+        "index": true,
+        "store": false
+      },
+      "type": {
+        "properties": {
+          "text": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "standard"
+          },
+          "coding": {
+            "type": "nested",
+            "properties": {
+              "system": {
+                "type": "keyword",
+                "index": true,
+                "store": false
+              },
+              "code": {
+                "type": "keyword",
+                "index": true,
+                "store": false
+              },
+              "display": {
+                "type": "keyword",
+                "index": true,
+                "store": false
+              }
+            }
+          }
+        }
+      },
+      "subType": {
+        "properties": {
+          "text": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "standard"
+          },
+          "coding": {
+            "type": "nested",
+            "properties": {
+              "system": {
+                "type": "keyword",
+                "index": true,
+                "store": false
+              },
+              "code": {
+                "type": "keyword",
+                "index": true,
+                "store": false
+              },
+              "display": {
+                "type": "keyword",
+                "index": true,
+                "store": false
+              }
+            }
+          }
+        },
+        "type": "nested"
+      },
+      "patient": {
+        "properties": {
+          "reference": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "fhir_reference_analyzer"
+          }
+        }
+      },
+      "billablePeriod": {
+        "properties": {
+          "start": {
+            "type": "date",
+            "format": "date_time_no_millis||date_optional_time",
+            "store": false
+          },
+          "end": {
+            "type": "date",
+            "format": "date_time_no_millis||date_optional_time",
+            "store": false
+          }
+        }
+      },
+      "created": {
+        "type": "date",
+        "format": "date_time_no_millis||date_optional_time",
+        "store": false
+      },
+      "enterer": {
+        "properties": {
+          "reference": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "fhir_reference_analyzer"
+          }
+        }
+      },
+      "insurer": {
+        "properties": {
+          "reference": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "fhir_reference_analyzer"
+          }
+        }
+      },
+      "provider": {
+        "properties": {
+          "reference": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "fhir_reference_analyzer"
+          }
+        }
+      },
+      "organization": {
+        "properties": {
+          "reference": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "fhir_reference_analyzer"
+          }
+        }
+      },
+      "referral": {
+        "properties": {
+          "reference": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "fhir_reference_analyzer"
+          }
+        }
+      },
+      "facility": {
+        "properties": {
+          "reference": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "fhir_reference_analyzer"
+          }
+        }
+      },
+      "claim": {
+        "properties": {
+          "reference": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "fhir_reference_analyzer"
+          }
+        }
+      },
+      "claimResponse": {
+        "properties": {
+          "reference": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "fhir_reference_analyzer"
+          }
+        }
+      },
+      "outcome": {
+        "properties": {
+          "text": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "standard"
+          },
+          "coding": {
+            "type": "nested",
+            "properties": {
+              "system": {
+                "type": "keyword",
+                "index": true,
+                "store": false
+              },
+              "code": {
+                "type": "keyword",
+                "index": true,
+                "store": false
+              },
+              "display": {
+                "type": "keyword",
+                "index": true,
+                "store": false
+              }
+            }
+          }
+        }
+      },
+      "disposition": {
+        "type": "text",
+        "index": true,
+        "store": false,
+        "analyzer": "standard"
+      },
+      "prescription": {
+        "properties": {
+          "reference": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "fhir_reference_analyzer"
+          }
+        }
+      },
+      "originalPrescription": {
+        "properties": {
+          "reference": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "fhir_reference_analyzer"
+          }
+        }
+      },
+      "precedence": {
+        "type": "integer",
+        "store": false
+      },
+      "employmentImpacted": {
+        "properties": {
+          "start": {
+            "type": "date",
+            "format": "date_time_no_millis||date_optional_time",
+            "store": false
+          },
+          "end": {
+            "type": "date",
+            "format": "date_time_no_millis||date_optional_time",
+            "store": false
+          }
+        }
+      },
+      "hospitalization": {
+        "properties": {
+          "start": {
+            "type": "date",
+            "format": "date_time_no_millis||date_optional_time",
+            "store": false
+          },
+          "end": {
+            "type": "date",
+            "format": "date_time_no_millis||date_optional_time",
+            "store": false
+          }
+        }
+      },
+      "totalCost": {
+        "properties": {
+          "value": {
+            "type": "float",
+            "store": false
+          },
+          "code": {
+            "type": "keyword",
+            "index": true,
+            "store": false
+          },
+          "system": {
+            "type": "keyword",
+            "index": true,
+            "store": false
+          },
+          "unit": {
+            "type": "keyword",
+            "index": true,
+            "store": false
+          }
+        }
+      },
+      "unallocDeductable": {
+        "properties": {
+          "value": {
+            "type": "float",
+            "store": false
+          },
+          "code": {
+            "type": "keyword",
+            "index": true,
+            "store": false
+          },
+          "system": {
+            "type": "keyword",
+            "index": true,
+            "store": false
+          },
+          "unit": {
+            "type": "keyword",
+            "index": true,
+            "store": false
+          }
+        }
+      },
+      "totalBenefit": {
+        "properties": {
+          "value": {
+            "type": "float",
+            "store": false
+          },
+          "code": {
+            "type": "keyword",
+            "index": true,
+            "store": false
+          },
+          "system": {
+            "type": "keyword",
+            "index": true,
+            "store": false
+          },
+          "unit": {
+            "type": "keyword",
+            "index": true,
+            "store": false
+          }
+        }
+      },
+      "form": {
+        "properties": {
+          "text": {
+            "type": "text",
+            "index": true,
+            "store": false,
+            "analyzer": "standard"
+          },
+          "coding": {
+            "type": "nested",
+            "properties": {
+              "system": {
+                "type": "keyword",
+                "index": true,
+                "store": false
+              },
+              "code": {
+                "type": "keyword",
+                "index": true,
+                "store": false
+              },
+              "display": {
+                "type": "keyword",
+                "index": true,
+                "store": false
+              }
+            }
+          }
+        }
+      },
+      "id": {
+        "type": "keyword",
+        "index": true,
+        "store": false
+      },
+      "meta": {
+        "properties": {
+          "versionId": {
+            "type": "keyword",
+            "index": true,
+            "store": false
+          },
+          "lastUpdated": {
+            "type": "date",
+            "format": "date_time_no_millis||date_optional_time",
+            "store": false
+          },
+          "profile": {
+            "type": "keyword",
+            "index": true,
+            "store": false
+          }
+        }
+      },
+      "implicitRules": {
+        "type": "keyword",
+        "index": true,
+        "store": false
+      },
+      "language": {
+        "type": "keyword",
+        "index": true,
+        "store": false
+      },
+      "resourceType": {
+        "type": "keyword",
+        "index": true,
+        "store": false
+      }
+    }
+  }
+}

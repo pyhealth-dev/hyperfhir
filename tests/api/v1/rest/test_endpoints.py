@@ -1,8 +1,9 @@
 from hyperfhir.api.v1.endpoints.fhir import rest
 from hyperfhir.app import App
 from starlette.routing import Match
+import pytest
 
-
+@pytest.mark.asyncio
 def find_routes(app: App, path: str, method: str = "GET"):
     partial = None
     routes = list()
@@ -21,8 +22,8 @@ def find_routes(app: App, path: str, method: str = "GET"):
         routes.append(partial)
     return routes
 
-
-def test_history_endpoints(hyperfhir_site):
+@pytest.mark.asyncio
+async def test_history_endpoints(hyperfhir_site):
     """
     :param hyperfhir_site:
     :return:
@@ -43,8 +44,8 @@ def test_history_endpoints(hyperfhir_site):
     assert len(routes) == 2  # with create matches.
     assert routes[0].endpoint == rest.history_all
 
-
-def test_vread_endpoint(hyperfhir_site):
+@pytest.mark.asyncio
+async def test_vread_endpoint(hyperfhir_site):
     """
     :param hyperfhir_site:
     :return:
@@ -56,8 +57,8 @@ def test_vread_endpoint(hyperfhir_site):
     assert len(routes) == 1
     assert routes[0].endpoint == rest.vread
 
-
-def test_search_endpoints(hyperfhir_site):
+@pytest.mark.asyncio
+async def test_search_endpoints(hyperfhir_site):
     """
     :param hyperfhir_site:
     :return:
@@ -84,8 +85,8 @@ def test_search_endpoints(hyperfhir_site):
     assert len(routes) == 1
     assert routes[0].endpoint == rest.search_post
 
-
-def test_create_endpoint(hyperfhir_site):
+@pytest.mark.asyncio
+async def test_create_endpoint(hyperfhir_site):
     """
     :param hyperfhir_site:
     :return:
@@ -96,8 +97,8 @@ def test_create_endpoint(hyperfhir_site):
     # create
     assert routes[0].endpoint == rest.create
 
-
-def test_delete_endpoint(hyperfhir_site):
+@pytest.mark.asyncio
+async def test_delete_endpoint(hyperfhir_site):
     """
     :param hyperfhir_site:
     :return:
@@ -108,8 +109,8 @@ def test_delete_endpoint(hyperfhir_site):
     # create
     assert routes[0].endpoint == rest.delete
 
-
-def test_patch_endpoint(hyperfhir_site):
+@pytest.mark.asyncio
+async def test_patch_endpoint(hyperfhir_site):
     """
     :param hyperfhir_site:
     :return:
@@ -120,8 +121,8 @@ def test_patch_endpoint(hyperfhir_site):
     # create
     assert routes[0].endpoint == rest.patch
 
-
-def test_put_endpoint(hyperfhir_site):
+@pytest.mark.asyncio
+async def test_put_endpoint(hyperfhir_site):
     """
     :param hyperfhir_site:
     :return:
@@ -132,8 +133,8 @@ def test_put_endpoint(hyperfhir_site):
     # create
     assert routes[0].endpoint == rest.update
 
-
-def test_read_endpoint(hyperfhir_site):
+@pytest.mark.asyncio
+async def test_read_endpoint(hyperfhir_site):
     """
     :param hyperfhir_site:
     :return:
@@ -144,8 +145,8 @@ def test_read_endpoint(hyperfhir_site):
     # create
     assert routes[0].endpoint == rest.read
 
-
-def test_batch_endpoint(hyperfhir_site):
+@pytest.mark.asyncio
+async def test_batch_endpoint(hyperfhir_site):
     """
     :param hyperfhir_site:
     :return:
@@ -156,8 +157,8 @@ def test_batch_endpoint(hyperfhir_site):
     # create
     assert routes[0].endpoint == rest.batch
 
-
-def test_metadata_endpoint(hyperfhir_site):
+@pytest.mark.asyncio
+async def test_metadata_endpoint(hyperfhir_site):
     """
     :param hyperfhir_site:
     :return:

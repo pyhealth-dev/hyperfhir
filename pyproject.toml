@@ -22,7 +22,7 @@ classifiers = [
     "Environment :: Web Environment",
     "Framework :: AsyncIO",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.6",
@@ -34,15 +34,15 @@ classifiers = [
 ]
 requires = [
     "fastapi",
-    "pydantic[email,dotenv]",
-    "fhirpath>=0.9.1",
+    "pydantic[email,dotenv]>=1.7.2",
+    "fhirpath>=0.10.2",
     "elasticsearch[async]>7.8.0,<8.0.0",
     "databases[postgresql]",
     "uvicorn",
     "tenacity",
-    "pydantic",
     "graphene",
     "gunicorn",
+    "orjson",
     "python-multipart"
 
 ]
@@ -57,12 +57,13 @@ test = [
     "pytest >=6.1.1,<7.0.0",
     "pytest-cov",
     "pytest-asyncio",
+    "async-asgi-testclient",
     "pytest-mock",
+    "pytest-dotenv",
     "docker",
     "requests",
     "pytest-docker-fixtures"
 ]
-
 doc = [
     "mkdocs",
     "mkdocs-material",
@@ -84,6 +85,8 @@ all = [
     "pytest-cov",
     "pytest-asyncio",
     "pytest-mock",
+    "pytest-dotenv",
+    "async-asgi-testclient",
     "docker",
     "requests",
     "pytest-docker-fixtures",
@@ -105,7 +108,7 @@ python_version = ">=3.7"
 allow_prereleases = true
 
 [tool.pytest]
-addopts = "-ra -q"
+addopts = "-ra -q --envfile .test.env"
 testpaths = [
     "tests"
 ]

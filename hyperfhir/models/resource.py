@@ -1,10 +1,10 @@
-from .base import Base
-from sqlalchemy.ext.declarative import declared_attr
-import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import JSONB
-
 import datetime
 
+import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.declarative import declared_attr
+
+from .base import Base
 
 __author__ = "Md Nazrul Islam >"
 
