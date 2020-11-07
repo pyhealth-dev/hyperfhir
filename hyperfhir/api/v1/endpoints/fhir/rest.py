@@ -1,11 +1,13 @@
 from email.utils import format_datetime
-
+from datetime import datetime
 from fastapi import APIRouter, Request
 from fhir.resources.fhirtypes import BundleType, ResourceType
 from pydantic import ValidationError
-
+from fastapi import Depends
 from hyperfhir.core.responses import fhir_rest_response
 from hyperfhir.core.utils import fhir_resource_from_request
+from hyperfhir.api.deps import get_es_search_context
+from fhirpath.search import SearchContext
 
 __author__ = "Md Nazrul Islam <email2nazrul@gmail.com>"
 
@@ -77,25 +79,25 @@ async def capabilities():
 
 
 @router.get(
-    "/_history",
-    response_model=BundleType,
-    status_code=200,
+    "/_history", response_model=BundleType, status_code=200,
 )
 async def history_all(request: Request):
     pass
 
 
 @router.post(
-    "/_search",
-    response_model=BundleType,
-    status_code=200,
+    "/_search", response_model=BundleType, status_code=200,
 )
 async def search_all_post(resource_request: ResourceType, request: Request):
     pass
 
 
 @router.post("/{resource}", status_code=201)
-async def create(resource: str, request: Request):
+async def create(
+    resource: str,
+    request: Request,
+    search_context: SearchContext = Depends(get_es_search_context),
+):
     """Headers to add
         1. Location: [base]/[type]/[id]/_history/[vid]
         2. Last-Modified:
@@ -116,6 +118,7 @@ async def create(resource: str, request: Request):
 
     :param resource:
     :param request:
+    :param search_context:
     :return:
     """
     # check Condition
@@ -123,11 +126,15 @@ async def create(resource: str, request: Request):
         # @see conditional section
         pass
     try:
-        resource_obj = fhir_resource_from_request(request, resource)
+        resource_obj = await fhir_resource_from_request(request, resource)
     except ValidationError as exc:
         print(exc)
         # xxx: do outcome report
         return
+    resource_obj.meta = {
+        "versionId": "1",
+        "lastUpdated": datetime.utcnow()
+    }
     headers = {
         "Location": f"fhir/{resource}/{resource_obj.id}/_history/{resource_obj.meta.versionId}",
         "ETag": f'W/"{resource_obj.meta.versionId}"',
@@ -137,18 +144,14 @@ async def create(resource: str, request: Request):
 
 
 @router.get(
-    "/{resource}",
-    response_model=BundleType,
-    status_code=200,
+    "/{resource}", response_model=BundleType, status_code=200,
 )
 async def search(resource: str, request: Request):
     pass
 
 
 @router.get(
-    "/{resource}/_history",
-    response_model=BundleType,
-    status_code=200,
+    "/{resource}/_history", response_model=BundleType, status_code=200,
 )
 async def history(resource: str, request: Request):
     return None
@@ -156,18 +159,14 @@ async def history(resource: str, request: Request):
 
 
 @router.post(
-    "/{resource}/_search",
-    response_model=BundleType,
-    status_code=200,
+    "/{resource}/_search", response_model=BundleType, status_code=200,
 )
 async def search_post(resource: str, request: Request):
     pass
 
 
 @router.get(
-    "/{resource}/{resource_id}",
-    response_model=ResourceType,
-    status_code=201,
+    "/{resource}/{resource_id}", response_model=ResourceType, status_code=201,
 )
 async def read(resource_request: ResourceType, request: Request):
     """3.1.0.1.7 conditional read
@@ -191,27 +190,21 @@ async def delete(resource_request: ResourceType, request: Request):
 
 
 @router.patch(
-    "/{resource}/{resource_id}",
-    response_model=ResourceType,
-    status_code=201,
+    "/{resource}/{resource_id}", response_model=ResourceType, status_code=201,
 )
 async def patch(resource_request: ResourceType, request: Request):
     pass
 
 
 @router.put(
-    "/{resource}/{resource_id}",
-    response_model=ResourceType,
-    status_code=201,
+    "/{resource}/{resource_id}", response_model=ResourceType, status_code=201,
 )
 async def update(resource_request: ResourceType, request: Request):
     pass
 
 
 @router.get(
-    "/{resource}/{resource_id}/_history",
-    response_model=BundleType,
-    status_code=200,
+    "/{resource}/{resource_id}/_history", response_model=BundleType, status_code=200,
 )
 async def history_single(resource: str, resource_id: str):
     return {}

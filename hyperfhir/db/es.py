@@ -70,9 +70,10 @@ class ElasticsearchEngine(AsyncElasticsearchEngine):
         self.request = request
 
         AsyncElasticsearchEngine.__init__(
-            request.scope.get("FHIR_VERSION"),
-            lambda x: connection,
-            lambda x: ElasticSearchDialect(connection),
+            self,
+            fhir_release=request.scope.get("FHIR_VERSION"),
+            conn_factory=lambda x: connection,
+            dialect_factory=lambda x: ElasticSearchDialect(connection),
         )
 
     def get_index_name(self, resource_type=None):

@@ -112,7 +112,7 @@ class FHIRHttpXMLResponse(FHIRHttpResponse):
         return json_dumps(content, **params)
 
 
-async def fhir_rest_response(
+def fhir_rest_response(
     request: Request,
     data: typing.Any,
     status_code: int = 200,
