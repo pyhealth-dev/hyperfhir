@@ -3,7 +3,7 @@ import typing
 
 from fastapi.encoders import jsonable_encoder
 from fhirpath.enums import FHIR_VERSION
-from fhirpath.utils import json_dumps
+from fhirpath.json import json_dumps
 from pydantic import BaseModel
 from starlette.background import BackgroundTask
 from starlette.requests import Request

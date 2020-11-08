@@ -4,7 +4,7 @@ from fhirpath.utils import json_loads
 
 
 @pytest.mark.asyncio
-async def test_create_patient(hyperfhir_site):
+async def test_create_patient(hyperfhir_site, es_setup):
     """https://stackoverflow.com/questions/49936724/async-fixtures-with-pytest """
     client = hyperfhir_site
     with open(str(FHIR_EXAMPLE_RESOURCES / "Patient.json"), "rb") as fp:

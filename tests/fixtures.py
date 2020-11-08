@@ -3,17 +3,11 @@
 import sys
 import asyncio
 import pytest
-import os
 from pytest_docker_fixtures import images
-import tempfile
 from _pytest.monkeypatch import MonkeyPatch
-from fhirpath.connectors import create_connection
-from fhirpath.utils import proxy
 from async_asgi_testclient import TestClient
-from ._utils import TestElasticsearchEngine
 from ._utils import _cleanup_es
-from ._utils import _load_es_data
-from ._utils import _setup_es_index
+from hyperfhir.db.es import setup_elasticsearch
 import typing
 import os
 import pathlib
@@ -60,31 +54,21 @@ def event_loop():
 @pytest.fixture(scope="session")
 def es_connection(es):
     """ """
-    host, port = es
-    conn_str = "es://@{0}:{1}/".format(host, port)
-    conn = create_connection(conn_str, "elasticsearch.Elasticsearch")
-    assert conn.raw_connection.ping()
+    from hyperfhir.db.es import get_es_connection
+    conn = get_es_connection()
     yield conn
 
 
-@pytest.fixture(scope="session")
-def engine(es_connection):
-    """ """
-    engine = TestElasticsearchEngine(es_connection)
-    yield proxy(engine)
-
-
 @pytest.fixture
-def es_data(es_connection):
+async def es_setup(es_connection):
     """ """
     # do create index with other settings
-    _setup_es_index(es_connection)
-    _load_es_data(es_connection)
-
+    await setup_elasticsearch("R4", es_connection)
+    await setup_elasticsearch("STU3", es_connection)
     # es connection, meta data of fixture, i.e id
-    yield es_connection, None
+    yield es_connection
     # clean up
-    _cleanup_es(es_connection.raw_connection)
+    await _cleanup_es(es_connection.raw_connection)
 
 
 @pytest.fixture(scope="session")

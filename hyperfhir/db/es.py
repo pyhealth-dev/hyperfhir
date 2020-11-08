@@ -37,7 +37,7 @@ def _get_index_name(release_name: str, resource_type: str = None):
     prefix = f"fv_{release_name}"
     basename = os.environ.get("ELASTICSEARCH_INDEX_BASENAME")
     version = "1"
-    return "_".join([prefix, basename, version])
+    return "_".join([prefix, basename, version]).lower()
 
 
 @lru_cache(maxsize=1024, typed=True)
@@ -81,8 +81,8 @@ class ElasticsearchEngine(AsyncElasticsearchEngine):
         return _get_index_name(self.fhir_release.name, resource_type)
 
     def calculate_field_index_name(self, resource_type):
-        """ """
-        return f"{resource_type.lower()}_resource"
+        """We use same as Resource Type Name"""
+        return resource_type
 
     def get_mapping(self, resource_type):
         """ """
@@ -105,3 +105,90 @@ class ElasticsearchEngine(AsyncElasticsearchEngine):
         return AsyncElasticsearchEngine.extract_hits(
             self, selects, hits, container, doc_type
         )
+
+
+async def setup_elasticsearch(
+    release_name: str,
+    es_conn: AsyncElasticsearchConnection = None,
+    create: bool = False,
+):
+    """
+    :param release_name:
+    :param es_conn:
+    :param create:
+    :return:
+    """
+    conn = es_conn.raw_connection
+    real_index_name = _get_index_name(release_name)
+    exist = await conn.indices.exists(real_index_name)
+    if create is True:
+        if exist:
+            # xxx: es_conn.indices.delete_alias(real_index_name, alias_name="")
+            await conn.indices.delete(real_index_name)
+    else:
+        if exist:
+            return
+
+    body = {
+        "settings": {
+            "analysis": {
+                "analyzer": {
+                    "fhir_reference_analyzer": {
+                        "tokenizer": "keyword",
+                        "filter": ["fhir_reference_filter"],
+                    },
+                },
+                "filter": {
+                    "fhir_reference_filter": {
+                        "type": "pattern_capture",
+                        "preserve_original": True,
+                        "patterns": [r"(?:\w+\/)?(https?\:\/\/.*|[a-zA-Z0-9_-]+)"],
+                    },
+                },
+                "char_filter": {},
+                "tokenizer": {},
+            },
+            "index": {
+                "mapping": {
+                    "total_fields": {
+                        "limit": int(
+                            os.environ.get(
+                                "ELASTICSEARCH_INDEX_MAPPING_TOTAL_FIELDS", "5000"
+                            )
+                        )
+                    },
+                    "depth": {
+                        "limit": int(
+                            os.environ.get("ELASTICSEARCH_INDEX_MAPPING_DEPTH", "50")
+                        )
+                    },
+                    "nested_fields": {
+                        "limit": int(
+                            os.environ.get(
+                                "ELASTICSEARCH_INDEX_MAPPING_NESTED_FIELDS", "500"
+                            )
+                        )
+                    },
+                }
+            },
+        },
+        "mappings": {
+            "dynamic": False,
+            "properties": {
+                "access_roles": {"index": True, "store": True, "type": "keyword"},
+                "access_users": {"index": True, "store": True, "type": "keyword"},
+            },
+        },
+    }
+
+    for jsonfile in (ELASTICSEARCH_STATIC_MAPPINGS / release_name).glob(
+        "*.mapping.json"
+    ):
+
+        with open(str(jsonfile), "rb") as fp:
+            data = json_loads(fp.read())
+            body["mappings"]["properties"][data["resourceType"]] = data["mapping"]
+
+    await conn.indices.create(real_index_name, body=body)
+    # xxx: create alias
+    await conn.indices.refresh(index=real_index_name)
