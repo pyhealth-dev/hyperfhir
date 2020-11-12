@@ -7,9 +7,7 @@ from ..core.config import get_database_dsn
 DB_ = None
 
 
-def get_db(
-    url: typing.Union[str, DatabaseURL] = None, create: bool = False
-) -> Database:
+def get_db(url=None, create: bool = False) -> Database:
     """
     :param url:
     :param create:
@@ -17,6 +15,8 @@ def get_db(
     """
     global DB_
     if DB_ is None or create is True:
-        url = url or DatabaseURL(get_database_dsn())
+        dsn = get_database_dsn()
+        url = url or DatabaseURL(dsn)
+
         DB_ = Database(url=url)
     return DB_

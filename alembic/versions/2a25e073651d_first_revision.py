@@ -27,8 +27,8 @@ def upgrade():
     sa.Column('fhir_version', sa.String(length=8), nullable=False),
     sa.Column('resource_type', sa.String(length=64), nullable=False),
     sa.Column('resource', postgresql.JSONB(astext_type=sa.Text()), nullable=False),
-    sa.Column('next_txid', sa.Integer(), nullable=True),
-    sa.Column('pre_txid', sa.Integer(), nullable=True),
+    sa.Column('next_id', sa.BIGINT(), nullable=True),
+    sa.Column('prev_id', sa.BIGINT(), nullable=True),
     sa.Column('timestamp', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
@@ -36,7 +36,7 @@ def upgrade():
     op.create_index(op.f('ix_resourcehistory_table_resource_type'), 'resourcehistory_table', ['resource_type'], unique=False)
     op.create_table('resourcetransaction_table',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('index_id', sa.String(length=127), nullable=False),
+    sa.Column('es_id', sa.String(length=127), nullable=False),
     sa.Column('resource_id', sa.CHAR(length=36), nullable=False),
     sa.Column('status', sa.Enum('created', 'updated', 'deleted', 'recreated', 'archived', name="resource_transaction_status"), nullable=True),
     sa.Column('resource_type', sa.String(length=64), nullable=False),

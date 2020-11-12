@@ -1,13 +1,18 @@
-from email.utils import format_datetime
+import uuid
 from datetime import datetime
-from fastapi import APIRouter, Request
+from email.utils import format_datetime
+
+from databases import Database
+from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from fhir.resources.fhirtypes import BundleType, ResourceType
+from fhirpath.search import SearchContext, fhir_search
 from pydantic import ValidationError
-from fastapi import Depends
+
+from hyperfhir.api import tasks
+from hyperfhir.api.deps import get_db, get_es_search_context
 from hyperfhir.core.responses import fhir_rest_response
 from hyperfhir.core.utils import fhir_resource_from_request
-from hyperfhir.api.deps import get_es_search_context
-from fhirpath.search import SearchContext
+from hyperfhir.models import crud
 
 __author__ = "Md Nazrul Islam <email2nazrul@gmail.com>"
 
@@ -79,14 +84,18 @@ async def capabilities():
 
 
 @router.get(
-    "/_history", response_model=BundleType, status_code=200,
+    "/_history",
+    response_model=BundleType,
+    status_code=200,
 )
 async def history_all(request: Request):
     pass
 
 
 @router.post(
-    "/_search", response_model=BundleType, status_code=200,
+    "/_search",
+    response_model=BundleType,
+    status_code=200,
 )
 async def search_all_post(resource_request: ResourceType, request: Request):
     pass
@@ -96,6 +105,8 @@ async def search_all_post(resource_request: ResourceType, request: Request):
 async def create(
     resource: str,
     request: Request,
+    background_tasks: BackgroundTasks,
+    db: Database = Depends(get_db),
     search_context: SearchContext = Depends(get_es_search_context),
 ):
     """Headers to add
@@ -118,12 +129,15 @@ async def create(
 
     :param resource:
     :param request:
+    :param db:
+    :param background_tasks:
     :param search_context:
     :return:
     """
     # check Condition
     if request.scope.get("FHIR_CONDITION_NONE_EXIST"):
         # @see conditional section
+        # fhir_search(search_context, params={})
         pass
     try:
         resource_obj = await fhir_resource_from_request(request, resource)
@@ -131,27 +145,50 @@ async def create(
         print(exc)
         # xxx: do outcome report
         return
-    resource_obj.meta = {
-        "versionId": "1",
-        "lastUpdated": datetime.utcnow()
-    }
+    # forced by system
+    resource_obj.id = str(uuid.uuid4())
+    resource_obj.meta = {"versionId": "1", "lastUpdated": datetime.utcnow()}
+
+    # Insert into Database
+    record = await crud.create_resource(
+        db=db, resource=resource_obj, fhir_version=request.scope.get("FHIR_VERSION")
+    )
+    # Do Background TaskMQ
+    # add history
+    background_tasks.add_task(
+        tasks.add_resource_history, db=db, record=record, first=True
+    )
+    # add ES
+    background_tasks.add_task(
+        tasks.add_elasticsearch_doc,
+        es_engine=search_context.engine,
+        record=record,
+        create=True,
+    )
     headers = {
         "Location": f"fhir/{resource}/{resource_obj.id}/_history/{resource_obj.meta.versionId}",
         "ETag": f'W/"{resource_obj.meta.versionId}"',
         "Last-Modified": format_datetime(resource_obj.meta.lastUpdated),
     }
-    return fhir_rest_response(request, None, status_code=201, headers=headers)
+
+    return fhir_rest_response(
+        request, None, status_code=201, headers=headers, background=background_tasks
+    )
 
 
 @router.get(
-    "/{resource}", response_model=BundleType, status_code=200,
+    "/{resource}",
+    response_model=BundleType,
+    status_code=200,
 )
 async def search(resource: str, request: Request):
     pass
 
 
 @router.get(
-    "/{resource}/_history", response_model=BundleType, status_code=200,
+    "/{resource}/_history",
+    response_model=BundleType,
+    status_code=200,
 )
 async def history(resource: str, request: Request):
     return None
@@ -159,14 +196,18 @@ async def history(resource: str, request: Request):
 
 
 @router.post(
-    "/{resource}/_search", response_model=BundleType, status_code=200,
+    "/{resource}/_search",
+    response_model=BundleType,
+    status_code=200,
 )
 async def search_post(resource: str, request: Request):
     pass
 
 
 @router.get(
-    "/{resource}/{resource_id}", response_model=ResourceType, status_code=201,
+    "/{resource}/{resource_id}",
+    response_model=ResourceType,
+    status_code=201,
 )
 async def read(resource_request: ResourceType, request: Request):
     """3.1.0.1.7 conditional read
@@ -190,21 +231,27 @@ async def delete(resource_request: ResourceType, request: Request):
 
 
 @router.patch(
-    "/{resource}/{resource_id}", response_model=ResourceType, status_code=201,
+    "/{resource}/{resource_id}",
+    response_model=ResourceType,
+    status_code=201,
 )
 async def patch(resource_request: ResourceType, request: Request):
     pass
 
 
 @router.put(
-    "/{resource}/{resource_id}", response_model=ResourceType, status_code=201,
+    "/{resource}/{resource_id}",
+    response_model=ResourceType,
+    status_code=201,
 )
 async def update(resource_request: ResourceType, request: Request):
     pass
 
 
 @router.get(
-    "/{resource}/{resource_id}/_history", response_model=BundleType, status_code=200,
+    "/{resource}/{resource_id}/_history",
+    response_model=BundleType,
+    status_code=200,
 )
 async def history_single(resource: str, resource_id: str):
     return {}

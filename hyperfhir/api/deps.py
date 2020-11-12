@@ -1,11 +1,10 @@
 from fastapi import Depends
 from fhirpath.connectors.factory.es import AsyncElasticsearchConnection
+from fhirpath.search import SearchContext
 from starlette.requests import Request
 
-from hyperfhir.db.es import get_es_connection
+from hyperfhir.db.es import ElasticsearchEngine, get_es_connection
 from hyperfhir.db.main import get_db
-from hyperfhir.db.es import ElasticsearchEngine
-from fhirpath.search import SearchContext
 
 __author__ = "Md Nazrul Islam<email2nazrul@gmail.com>"
 

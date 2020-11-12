@@ -13,7 +13,7 @@ class ResourceTransactionModel(Base):
 
     id = sa.Column("id", sa.Integer, primary_key=True, autoincrement=True)
     # ${fhir_release}_{resource_type}_{resource_id(hex)}
-    index_id = sa.Column("index_id", sa.String(127), nullable=False)
+    es_id = sa.Column("es_id", sa.String(127), nullable=False)
     resource_id = sa.Column("resource_id", sa.CHAR(36), nullable=False, index=True)
     status = sa.Column(
         "status",
@@ -58,7 +58,7 @@ class ResourceHistoryModel(Base):
             "deleted",
             "recreated",
             "archived",
-            name="resource_transaction_status",
+            name="resource_history_status",
         ),
     )
     resource_version = sa.Column("resource_version", sa.String(8), nullable=False)
@@ -68,6 +68,6 @@ class ResourceHistoryModel(Base):
         "resource_type", sa.String(64), nullable=False, index=True
     )
     resource = sa.Column("resource", JSONB, nullable=False)
-    next_txid = sa.Column("next_txid", sa.Integer, nullable=True)
-    pre_txid = sa.Column("pre_txid", sa.Integer, nullable=True)
+    next_id = sa.Column("next_id", sa.BIGINT, nullable=True)
+    prev_id = sa.Column("prev_id", sa.BIGINT, nullable=True)
     timestamp = sa.Column("timestamp", sa.DateTime(timezone=True), default=None)

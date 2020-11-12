@@ -1,16 +1,19 @@
 # _*_ coding: utf-8 _*_
 
-import sys
 import asyncio
-import pytest
-from pytest_docker_fixtures import images
-from _pytest.monkeypatch import MonkeyPatch
-from async_asgi_testclient import TestClient
-from ._utils import _cleanup_es
-from hyperfhir.db.es import setup_elasticsearch
-import typing
 import os
 import pathlib
+import sys
+import typing
+
+import pytest
+from _pytest.monkeypatch import MonkeyPatch
+from async_asgi_testclient import TestClient
+from pytest_docker_fixtures import images
+
+from hyperfhir.db.es import setup_elasticsearch
+
+from ._utils import _cleanup_es
 
 __author__ = "Md Nazrul Islam<email2nazrul@gmail.com>"
 
@@ -55,8 +58,22 @@ def event_loop():
 def es_connection(es):
     """ """
     from hyperfhir.db.es import get_es_connection
+
     conn = get_es_connection()
     yield conn
+
+
+@pytest.fixture(scope="session")
+async def pg_connection(pg):
+    """ """
+    from hyperfhir.db import get_db
+
+    db = get_db()
+    # if not db.is_connected:
+    #    await db.connect()
+    yield db
+    # if db.is_connected:
+    #    await db.disconnect()
 
 
 @pytest.fixture

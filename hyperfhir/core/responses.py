@@ -117,6 +117,7 @@ def fhir_rest_response(
     data: typing.Any,
     status_code: int = 200,
     headers: typing.Dict[str, str] = None,
+    background: BackgroundTask = None,
 ):
     if not isinstance(data, BaseModel):
         data = jsonable_encoder(data)

@@ -59,6 +59,13 @@ def _get_mapping(fhir_release: str, resource_type: str):
         )
 
 
+@lru_cache(maxsize=None)
+def _get_doc_type():
+    """ """
+    doc_type = os.environ.get("ELASTICSEARCH_INDEX_DOCNAME", "_fhir_resource_doc")
+    return doc_type.lower()
+
+
 class ElasticsearchEngine(AsyncElasticsearchEngine):
     """ """
 
@@ -95,9 +102,7 @@ class ElasticsearchEngine(AsyncElasticsearchEngine):
     @staticmethod
     def get_doc_type():
         """ """
-        return os.environ.get(
-            "ELASTICSEARCH_INDEX_BASENAME", "ELASTICSEARCH_INDEX_DOCNAME"
-        )
+        return _get_doc_type()
 
     def extract_hits(self, selects, hits, container, doc_type=None):
         """ """
