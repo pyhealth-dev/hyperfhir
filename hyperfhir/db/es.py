@@ -180,7 +180,7 @@ async def setup_elasticsearch(
         "mappings": {
             "dynamic": False,
             "properties": {
-                "access_roles": {"index": True, "store": True, "type": "keyword"},
+                "access_scopes": {"index": True, "store": True, "type": "keyword"},
                 "access_users": {"index": True, "store": True, "type": "keyword"},
             },
         },
