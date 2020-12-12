@@ -35,7 +35,8 @@ classifiers = [
 requires = [
     "fastapi",
     "pydantic[email,dotenv]>=1.7.2",
-    "fhirpath>=0.10.2",
+    "fhirpath>=0.10.4",
+    "fhir.resources>=6.0.0b10",
     "elasticsearch[async]>7.8.0,<8.0.0",
     "databases[postgresql]",
     "uvicorn",

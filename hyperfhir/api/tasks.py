@@ -59,7 +59,7 @@ async def add_elasticsearch_doc(
     conn = es_engine.connection.raw_connection
     resource_type = record["resource_type"]
     if create is False:
-        await conn.delete(index_name, record["es_id"], doc_type=doc_type)
+        await conn.delete(index=index_name, id=record["es_id"], doc_type=doc_type)
     body = {
         es_engine.calculate_field_index_name(resource_type): json_loads(
             record["resource"]
@@ -77,5 +77,5 @@ async def add_elasticsearch_doc(
         "access_users": ["root"],
     }
     await conn.create(
-        index_name, record["es_id"], body, doc_type=doc_type, refresh=True
+        index=index_name, id=record["es_id"], body=body, doc_type=doc_type, refresh=True
     )

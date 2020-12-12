@@ -31,18 +31,18 @@ async def test_history_endpoints(hyperfhir_site):
     :param hyperfhir_site:
     :return:
     """
-    client, app = hyperfhir_site
-    routes = find_routes(app, "/api/v1/fhir/Organization/0998/_history", "GET")
+    client = hyperfhir_site
+    routes = find_routes(client.application, "/api/v1/fhir/Organization/0998/_history", "GET")
     assert len(routes) == 1
     # test single resource with history
     assert routes[0].endpoint == rest.history_single
 
-    routes = find_routes(app, "/api/v1/fhir/Organization/_history", "GET")
+    routes = find_routes(client.application, "/api/v1/fhir/Organization/_history", "GET")
     # test resource search with history
     assert len(routes) == 2  # with read match.
     assert routes[0].endpoint == rest.history
 
-    routes = find_routes(app, "/api/v1/fhir/_history", "GET")
+    routes = find_routes(client.application, "/api/v1/fhir/_history", "GET")
     # test resource search with history
     assert len(routes) == 2  # with create matches.
     assert routes[0].endpoint == rest.history_all
@@ -54,9 +54,9 @@ async def test_vread_endpoint(hyperfhir_site):
     :param hyperfhir_site:
     :return:
     """
-    client, app = hyperfhir_site
+    client = hyperfhir_site
     routes = find_routes(
-        app, "/api/v1/fhir/Organization/0908-090-9-09TH/_history/101", "GET"
+        client.application, "/api/v1/fhir/Organization/0908-090-9-09TH/_history/101", "GET"
     )
     assert len(routes) == 1
     assert routes[0].endpoint == rest.vread
@@ -68,25 +68,25 @@ async def test_search_endpoints(hyperfhir_site):
     :param hyperfhir_site:
     :return:
     """
-    client, app = hyperfhir_site
-    routes = find_routes(app, "/api/v1/fhir/_search", "POST")
+    client = hyperfhir_site
+    routes = find_routes(client.application, "/api/v1/fhir/_search", "POST")
     # with create
     assert len(routes) == 2
     # search all request POST
     assert routes[0].endpoint == rest.search_all_post
 
-    routes = find_routes(app, "/api/v1/fhir/", "GET")
+    routes = find_routes(client.application, "/api/v1/fhir/", "GET")
     assert len(routes) == 1
     # search all resource GET
     assert routes[0].endpoint == rest.search_all
 
-    routes = find_routes(app, "/api/v1/fhir/Organization", "GET")
+    routes = find_routes(client.application, "/api/v1/fhir/Organization", "GET")
     # with batch
     assert len(routes) == 1
     # search all resource GET
     assert routes[0].endpoint == rest.search
 
-    routes = find_routes(app, "/api/v1/fhir/Organization/_search", "POST")
+    routes = find_routes(client.application, "/api/v1/fhir/Organization/_search", "POST")
     assert len(routes) == 1
     assert routes[0].endpoint == rest.search_post
 
@@ -97,8 +97,8 @@ async def test_create_endpoint(hyperfhir_site):
     :param hyperfhir_site:
     :return:
     """
-    client, app = hyperfhir_site
-    routes = find_routes(app, "/api/v1/fhir/Organization", "POST")
+    client = hyperfhir_site
+    routes = find_routes(client.application, "/api/v1/fhir/Organization", "POST")
     assert len(routes) == 1
     # create
     assert routes[0].endpoint == rest.create
@@ -110,8 +110,8 @@ async def test_delete_endpoint(hyperfhir_site):
     :param hyperfhir_site:
     :return:
     """
-    client, app = hyperfhir_site
-    routes = find_routes(app, "/api/v1/fhir/Organization/011", "DELETE")
+    client = hyperfhir_site
+    routes = find_routes(client.application, "/api/v1/fhir/Organization/011", "DELETE")
     assert len(routes) == 1
     # create
     assert routes[0].endpoint == rest.delete
@@ -123,8 +123,8 @@ async def test_patch_endpoint(hyperfhir_site):
     :param hyperfhir_site:
     :return:
     """
-    client, app = hyperfhir_site
-    routes = find_routes(app, "/api/v1/fhir/Organization/011", "PATCH")
+    client = hyperfhir_site
+    routes = find_routes(client.application, "/api/v1/fhir/Organization/011", "PATCH")
     assert len(routes) == 1
     # create
     assert routes[0].endpoint == rest.patch
@@ -136,8 +136,8 @@ async def test_put_endpoint(hyperfhir_site):
     :param hyperfhir_site:
     :return:
     """
-    client, app = hyperfhir_site
-    routes = find_routes(app, "/api/v1/fhir/Organization/011", "PUT")
+    client = hyperfhir_site
+    routes = find_routes(client.application, "/api/v1/fhir/Organization/011", "PUT")
     assert len(routes) == 1
     # create
     assert routes[0].endpoint == rest.update
@@ -149,8 +149,8 @@ async def test_read_endpoint(hyperfhir_site):
     :param hyperfhir_site:
     :return:
     """
-    client, app = hyperfhir_site
-    routes = find_routes(app, "/api/v1/fhir/Organization/011", "GET")
+    client = hyperfhir_site
+    routes = find_routes(client.application, "/api/v1/fhir/Organization/011", "GET")
     assert len(routes) == 1
     # create
     assert routes[0].endpoint == rest.read
@@ -162,8 +162,8 @@ async def test_batch_endpoint(hyperfhir_site):
     :param hyperfhir_site:
     :return:
     """
-    client, app = hyperfhir_site
-    routes = find_routes(app, "/api/v1/fhir/", "POST")
+    client = hyperfhir_site
+    routes = find_routes(client.application, "/api/v1/fhir/", "POST")
     assert len(routes) == 1
     # create
     assert routes[0].endpoint == rest.batch
@@ -175,8 +175,8 @@ async def test_metadata_endpoint(hyperfhir_site):
     :param hyperfhir_site:
     :return:
     """
-    client, app = hyperfhir_site
-    routes = find_routes(app, "/api/v1/fhir/metadata", "GET")
+    client = hyperfhir_site
+    routes = find_routes(client.application, "/api/v1/fhir/metadata", "GET")
     assert len(routes) == 2
     # metadata
     assert routes[0].endpoint == rest.capabilities

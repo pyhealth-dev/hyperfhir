@@ -14,6 +14,7 @@ from pytest_docker_fixtures import images
 from hyperfhir.db.es import setup_elasticsearch
 
 from ._utils import _cleanup_es
+from ._utils import _load_es_data
 
 __author__ = "Md Nazrul Islam<email2nazrul@gmail.com>"
 
@@ -86,6 +87,14 @@ async def es_setup(es_connection):
     yield es_connection
     # clean up
     await _cleanup_es(es_connection.raw_connection)
+
+
+@pytest.fixture
+async def es_data(es_setup):
+    """ """
+    es_conn = es_setup
+    await _load_es_data(es_conn, "R4")
+    yield es_conn
 
 
 @pytest.fixture(scope="session")

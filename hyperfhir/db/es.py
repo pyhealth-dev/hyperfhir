@@ -6,6 +6,7 @@ from fhirpath.dialects.elasticsearch import ElasticSearchDialect
 from fhirpath.engine.es import AsyncElasticsearchEngine
 from fhirpath.utils import json_loads
 from starlette.requests import Request
+import yarl
 
 from hyperfhir.core.config import ELASTICSEARCH_STATIC_MAPPINGS
 
@@ -52,7 +53,8 @@ def _get_mapping(fhir_release: str, resource_type: str):
     )
     try:
         with open(str(filename), "rb") as fp:
-            return json_loads(fp.read())
+            data = json_loads(fp.read())
+            return data["mapping"]
     except FileNotFoundError:
         raise LookupError(
             f"No mapping has been found for {fhir_release}.{resource_type}"
@@ -62,7 +64,7 @@ def _get_mapping(fhir_release: str, resource_type: str):
 @lru_cache(maxsize=None)
 def _get_doc_type():
     """ """
-    doc_type = os.environ.get("ELASTICSEARCH_INDEX_DOCNAME", "_fhir_resource_doc")
+    doc_type = os.environ.get("ELASTICSEARCH_INDEX_DOCNAME", "fhir_resource_doc")
     return doc_type.lower()
 
 
@@ -97,7 +99,7 @@ class ElasticsearchEngine(AsyncElasticsearchEngine):
 
     def current_url(self):
         """ """
-        return self.request.url
+        return yarl.URL(str(self.request.url))
 
     @staticmethod
     def get_doc_type():
@@ -158,7 +160,7 @@ async def setup_elasticsearch(
                     "total_fields": {
                         "limit": int(
                             os.environ.get(
-                                "ELASTICSEARCH_INDEX_MAPPING_TOTAL_FIELDS", "5000"
+                                "ELASTICSEARCH_INDEX_MAPPING_TOTAL_FIELDS", "10000"
                             )
                         )
                     },
@@ -170,7 +172,7 @@ async def setup_elasticsearch(
                     "nested_fields": {
                         "limit": int(
                             os.environ.get(
-                                "ELASTICSEARCH_INDEX_MAPPING_NESTED_FIELDS", "500"
+                                "ELASTICSEARCH_INDEX_MAPPING_NESTED_FIELDS", "1200"
                             )
                         )
                     },

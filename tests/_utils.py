@@ -57,12 +57,15 @@ def _make_index_item(resource_type):
     now_time.replace(tzinfo=pytz.UTC)
 
     tpl = {
-        "access_roles": [
-            "hfa.Reader",
-            "hfa.Reviewer",
-            "hfa.Owner",
-            "hfa.Editor",
-            "hfa.ContainerAdmin",
+        "access_scopes": [
+            "patient/*.*",
+            f"patient/{resource_type}.*",
+            f"patient/{resource_type}.read",
+            f"patient/{resource_type}.write",
+            "user/*.*",
+            f"user/{resource_type}.*",
+            f"user/{resource_type}.read",
+            f"user/{resource_type}.write",
         ],
         "access_users": ["root"],
     }
@@ -75,7 +78,7 @@ def _make_index_item(resource_type):
     return tpl
 
 
-def _load_es_data(es_conn, release_name="R4"):
+async def _load_es_data(es_conn, release_name="R4"):
     """ """
 
     def _make_es_id(data, release_name_, resource_name):
@@ -86,70 +89,46 @@ def _load_es_data(es_conn, release_name="R4"):
         :return:
         """
         return "_".join(
-            [
-                release_name_.lower(),
-                resource_name.lower(),
-                data["uid"].pop(),
-            ]
+            [release_name_.lower(), resource_name.lower(), data.pop("uid"),]
         )
 
     conn = es_conn.raw_connection
     index_name = _get_index_name(release_name)
     organization_data = _make_index_item("Organization")
-    bulk_data = [
-        {
-            "index": {
-                "_id": _make_es_id(organization_data, release_name, "Organization"),
-                "_index": _get_index_name(release_name),
-            }
-        },
-        organization_data,
-    ]
-    res = conn.bulk(
-        index=_get_index_name(release_name), doc_type=_get_doc_type(), body=bulk_data
+    id_ = _make_es_id(organization_data, release_name, "Organization")
+    res = await conn.create(
+        index=_get_index_name(release_name),
+        id=id_,
+        body=organization_data,
+        doc_type=_get_doc_type(),
     )
-    assert res["errors"] is False
+
+    assert res["result"] == "created"
 
     patient_data = _make_index_item("Patient")
-    bulk_data = [
-        {
-            "index": {
-                "_id": _make_es_id(patient_data, release_name, "Patient"),
-                "_index": index_name,
-            }
-        },
-        patient_data,
-    ]
-    res = conn.bulk(index=index_name, doc_type=_get_doc_type(), body=bulk_data)
-    assert res["errors"] is False
+    id_ = _make_es_id(patient_data, release_name, "Patient")
+
+    res = await conn.create(
+        index=index_name, id=id_, body=patient_data, doc_type=_get_doc_type(),
+    )
+    assert res["result"] == "created"
 
     chargeitem_data = _make_index_item("ChargeItem")
-    bulk_data = [
-        {
-            "index": {
-                "_id": _make_es_id(chargeitem_data, release_name, "ChargeItem"),
-                "_index": index_name,
-            }
-        },
-        chargeitem_data,
-    ]
-    res = conn.bulk(index=index_name, doc_type=_get_doc_type(), body=bulk_data)
-    assert res["errors"] is False
+    id_ = _make_es_id(chargeitem_data, release_name, "ChargeItem")
+    res = await conn.create(
+        index=index_name, id=id_, doc_type=_get_doc_type(), body=chargeitem_data
+    )
+    assert res["result"] == "created"
 
     observation_data = _make_index_item("Observation")
-    bulk_data = [
-        {
-            "index": {
-                "_id": _make_es_id(observation_data, release_name, "Observation"),
-                "_index": index_name,
-            }
-        },
-        observation_data,
-    ]
-    res = conn.bulk(index=index_name, doc_type=_get_doc_type(), body=bulk_data)
-    assert res["errors"] is False
+    id_ = _make_es_id(observation_data, release_name, "Observation")
 
-    conn.indices.refresh(index=index_name)
+    res = await conn.create(
+        index=index_name, id=id_, body=observation_data, doc_type=_get_doc_type()
+    )
+    assert res["result"] == "created"
+
+    await conn.indices.refresh(index=index_name)
 
 
 async def _cleanup_es(conn, prefix=""):

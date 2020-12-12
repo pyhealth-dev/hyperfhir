@@ -104,7 +104,7 @@ def get_elasticsearch_dsn() -> str:
 
 
 ELASTICSEARCH_STATIC_MAPPINGS = (
-    pathlib.Path(os.path.abspath(__file__)).parent
+    pathlib.Path(os.path.abspath(__file__)).parent.parent
     / "static"
     / "HL7"
     / "FHIR"
