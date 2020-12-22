@@ -23,3 +23,10 @@ async def test_resource_search(hyperfhir_site, es_data):
     )
     bundle = Bundle.parse_raw(res.content)
     assert bundle.total == 1
+
+    res = await client.get(
+        "/api/v1/fhir/Patient?idenifier=CPR|240365-0002",
+        headers={"Accept": "application/json"},
+    )
+    assert res.status_code == 400
+    assert res.json()["resourceType"] == "OperationOutcome"

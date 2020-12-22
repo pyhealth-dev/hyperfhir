@@ -134,6 +134,7 @@ def fhir_rest_response(
         headers=headers,
         pretty=request.scope.get("FHIR_RESPONSE_PRETTY", None),
         fhir_version=request.scope["FHIR_VERSION"],
+        background=background
     )
     # xxx: do more for headers?
     return response

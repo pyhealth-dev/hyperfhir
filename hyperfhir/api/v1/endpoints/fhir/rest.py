@@ -14,6 +14,8 @@ from hyperfhir.core.responses import fhir_rest_response
 from hyperfhir.core.utils import fhir_resource_from_request
 from hyperfhir.models import crud
 from fhirpath.exceptions import ValidationError as SearchValidationError
+from fastapi.exceptions import RequestValidationError
+from pydantic.error_wrappers import ErrorWrapper, ValidationError
 
 __author__ = "Md Nazrul Islam <email2nazrul@gmail.com>"
 
@@ -185,11 +187,20 @@ async def search(search_context: SearchContext = Depends(get_es_search_context))
         bundle = await fhir_search(
             search_context,
             params=search_context.engine.request.query_params.multi_items() or None,
-            response_as_dict=True
+            response_as_dict=True,
         )
-        return fhir_rest_response(search_context.engine.request, bundle, status_code=200)
-    except SearchValidationError:
-        raise
+        return fhir_rest_response(
+            search_context.engine.request, bundle, status_code=200
+        )
+    except SearchValidationError as exc:
+        new_exc = RequestValidationError(
+            [ErrorWrapper(exc, ("request",))],
+            body="Search Validation Error",
+        )
+        # some hack
+        new_exc.code = "value"
+        new_exc.system_code = "MSG_BAD_FORMAT"
+        raise new_exc
 
 
 @router.get(

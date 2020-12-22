@@ -42,10 +42,10 @@ class FHIRHTTPRequestHandlerMiddleware:
         self.app = app
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] != "http":  # pragma: no cover
+        # important! not intercept other than FHIR service.
+        if scope["type"] != "http" or "/fhir/" not in scope.get("path", ""):  # pragma: no cover
             await self.app(scope, receive, send)
             return
-
         params = QueryParams(scope.get("query_string", b""))
         headers = Headers(scope=scope)
         errors = list()
